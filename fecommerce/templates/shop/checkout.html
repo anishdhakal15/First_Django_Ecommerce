@@ -1,0 +1,129 @@
+{%extends 'shop/base.html' %}
+
+{% block title %}
+Checkouts - Eshop
+{%endblock%}
+{%block head%}
+<style>
+
+  .alert{
+    position: fixed;
+    top: 0px;
+  }
+</style>
+{%endblock%}
+
+
+{%block body%}
+<div class="container">
+  <div class="col my-4">
+    <h2>Step 1 - Eshop Express Checkout - Review Your Cart Items</h2>
+    <div class="itemscheckout">
+
+     <ul class="list-group">
+
+
+      </ul>
+    </div>
+  </div>
+  <div class="col my-4">
+    <h2>Step 2 - Enter Address & Other Details: </h2>
+
+    <form method="POST" action="/shop/checkout/">{% csrf_token %}
+      <input type="hidden" name="itemJson" id="itemJson">
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="inputname">Name</label>
+          <input type="name" class="form-control" id="inputname" name="name">
+        </div>
+        <div class="form-group col-md-6">
+          <label for="inputEmail4">Email</label>
+          <input type="email" class="form-control" id="inputEmail4" name="email">
+        </div>
+
+      </div>
+      <div class="form-group">
+        <label for="inputAddress">Address</label>
+        <input type="text" class="form-control" id="inputAddress" placeholder="" name="addr1">
+      </div>
+      <div class="form-group">
+        <label for="inputAddress2">Address Line 2</label>
+        <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor"
+          name="addr2">
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="inputCity">City</label>
+          <input type="text" class="form-control" id="inputCity" name="city">
+        </div>
+        <div class="form-group col-md-4">
+          <label for="inputState">State</label>
+          <input type="text" class="form-control" id="inputState" name="state">
+          <input type="hidden" class="form-control" id="amount" name="amount">
+        </div>
+        <div class="form-group col-md-2">
+          <label for="inputZip">Zip</label>
+          <input type="text" class="form-control" id="inputZip" name="zip">
+        </div>
+        <div class="form-group col-md-6">
+          <label for="inputphone">Phone Number</label>
+          <input type="tel" class="form-control" id="inputphone" name="phone">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Place Order</button>
+    </form>
+
+  </div>
+
+</div>
+
+{%if thank%}
+
+<div class="alert alert-success alert-dismissible fade show" id="alertcheckout " role="alert">
+  <strong>
+You Successfully Placed Your Order!</strong> Your order id is {{id}}. Use it to track your order using our order tracker.
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+{%endif%}
+{%endblock%}
+
+{% block js %}
+<script>
+{% comment %} if (localStorage.getItem('cart') == null) {
+      var cart = {};
+    }
+    else {
+      cart = JSON.parse(localStorage.getItem('cart'));
+      $('#cart').text(sum(Object.values(JSON.parse(localStorage.getItem('cart')))));
+    } {% endcomment %}
+$('.alert').on('click','button.close',function(){
+  localStorage.clear();
+document.location = '/shop/';});
+  if (localStorage.getItem('cart') == null) {
+    var cart = {};
+  }
+  else {
+    cart = JSON.parse(localStorage.getItem('cart'));
+    $('#cart').text(sum(Object.values(JSON.parse(localStorage.getItem('cart')))));
+  }
+  $('#itemJson').val(JSON.stringify(cart));
+  
+  
+  if ($.isEmptyObject(cart)) {
+    $('.itemscheckout').append('<p>Your cart is empty, Please add some items to your cart before checkout!</p> <hr>');
+  }
+  else {
+    $('.list-group').append(`<li class="list-group-item d-flex justify-content-between align-items-center">Product Name:-<span class="badge badge-primary badge-pill">    Product  Price</span><span class="badge badge-primary badge-pill">Quantity</span></li>`);
+    for (i in cart) {
+      $('.list-group').append(`<li class="list-group-item d-flex justify-content-between align-items-center">${cart[i][1]}<span class="badge badge-primary badge-pill">${cart[i][2]}</span><span class="badge badge-primary badge-pill">${cart[i][0]}</span></li>`);
+    }
+    $('.list-group').append(`<hr><li class="list-group-item d-flex justify-content-between align-items-center">Total <span class="badge badge-primary badge-pill">         ${pricesum(Object.values(JSON.parse(localStorage.getItem('cart'))))}</span><span class="badge badge-primary badge-pill">${sum(Object.values(JSON.parse(localStorage.getItem('cart'))))}</span></li>`);
+  }
+  $('#amount').val(pricesum(Object.values(JSON.parse(localStorage.getItem('cart')))));
+</script>
+{%endblock%}
